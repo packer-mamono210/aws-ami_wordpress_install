@@ -1,0 +1,38 @@
+{
+  "variables": {
+    "ami_name": "",
+    "aws_access_key": "",
+    "aws_secret_key": "",
+    "aws_region": "",
+    "source_ami_id": "",
+    "tag_name": ""
+  },
+  "builders": [{
+    "type": "amazon-ebs",
+    "access_key": "{{user `aws_access_key`}}",
+    "secret_key": "{{user `aws_secret_key`}}",
+    "region": "{{user `aws_region`}}",
+    "instance_type": "t2.medium",
+    "ssh_username": "centos",
+    "source_ami": "{{user `source_ami_id`}}",
+    "ami_name": "{{user `ami_name`}}",
+    "launch_block_device_mappings": [
+      {
+        "device_name": "/dev/sda1",
+        "volume_size": 20,
+        "volume_type": "gp2",
+        "delete_on_termination": true
+      }
+    ],
+    "tags": {
+       "Name": "{{user `tag_name`}}"
+    }
+  }],
+  "provisioners": [
+    {
+      "type": "ansible",
+      "playbook_file": "./wordpress_install/install.yml",
+      "galaxy_file": "./wordpress_install/roles/requirements.yml"
+    }
+  ]
+}
