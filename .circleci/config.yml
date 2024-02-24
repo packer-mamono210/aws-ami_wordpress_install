@@ -26,6 +26,8 @@ jobs:
       ansible-playbook-git-repo-version:
         default: 'main'
         type: string
+      ssh-username:
+        type: string
     steps:
       - checkout
       - aws-cli/setup:
@@ -61,8 +63,9 @@ jobs:
             -var "aws_profile=default" \
             -var "aws_region=ap-northeast-1" \
             -var "source_ami_id=${SOURCE_AMI_ID}" \
+            -var "ssh_username=<< parameters.ssh-username >>" \
             -var "tag_name=${TAG_NAME}" \
-            "<< parameters.ami-name >>/"build.pkr.hcl
+            build.pkr.hcl
           no_output_timeout: 30m
   trailing-whitespace:
     executor: trailing-whitespace
@@ -87,12 +90,8 @@ workflows:
             - trailing-whitespace
       - packer:
           context: AWS_OPENID_CONNECT_TOKENS
-          matrix:
-            parameters:
-              ami-name:
-                - 'centos-stream8'
-                - 'centos-stream9'
-              ansible-playbook-git-repo:
-                - 'https://github.com/ansible-playbooks-mamono210/wordpress_install.git'
+          ami-name: 'centos-stream9'
+          ansible-playbook-git-repo: 'https://github.com/ansible-playbooks-mamono210/wordpress_install.git'
+          ssh-username: 'ec2-user'
           requires:
             - yamllint
